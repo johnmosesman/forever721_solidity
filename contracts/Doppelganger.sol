@@ -14,19 +14,19 @@ contract Doppelganger is ERC721Enumerable, ERC721URIStorage {
 
   constructor() ERC721("Doppelganger", "DOPP") {}
 
-  function mint(address wallet, string memory aTokenURI) public returns(uint256) {
+  function mint(string memory aTokenURI) public returns(uint256) {
     _tokenIds.increment();
 
     uint256 newItemId = _tokenIds.current();
 
-    _mint(wallet, newItemId);
+    _mint(msg.sender, newItemId);
     _setTokenURI(newItemId, aTokenURI);
 
     return newItemId;
   }
 
   function tokenURI(uint256 tokenId) public view virtual override(ERC721, ERC721URIStorage) returns (string memory) {
-    super.tokenURI(tokenId);
+    return super.tokenURI(tokenId);
   }
 
   function _beforeTokenTransfer(
@@ -42,6 +42,6 @@ contract Doppelganger is ERC721Enumerable, ERC721URIStorage {
   }
 
   function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC721Enumerable) returns (bool) {
-    super.supportsInterface(interfaceId);
+    return super.supportsInterface(interfaceId);
   }
 }
