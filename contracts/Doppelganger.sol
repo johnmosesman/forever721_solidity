@@ -8,20 +8,25 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 //import "utils/base64.sol";
 
+import "hardhat/console.sol";
+
 contract Doppelganger is ERC721Enumerable, ERC721URIStorage {
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
 
   constructor() ERC721("Doppelganger", "DOPP") {}
 
-  function snapshot(address tokenContractAddress, uint256 tokenId) public returns(uint256) {
+  function snapshot(IERC721 tokenContractAddress, uint256 tokenId) public returns(uint256) {
+    console.log("part1");
     // Only owner of NFT can mint snapshot
-    address ownerAddress = IERC721(tokenContractAddress).ownerOf(tokenId);
+    address ownerAddress = tokenContractAddress.ownerOf(tokenId);
+//    address ownerAddress = IERC721(tokenContractAddress).ownerOf(tokenId);
     require (msg.sender == ownerAddress, "Doppelganger: only owner of original token can snapshot.");
-
+    console.log("part2");
     // TODO: Get the real data here
     string memory tokenUri = "blah";
     _mintSnapshot(tokenUri);
+    console.log("part3");
   }
 
   function _mintSnapshot(string memory aTokenURI) private returns(uint256) {

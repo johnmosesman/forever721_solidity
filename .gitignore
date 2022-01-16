@@ -7,3 +7,9 @@ typechain
 #Hardhat files
 cache
 artifacts
+
+.idea/modules.xml
+
+.idea/nftrusty.iml
+
+.idea/vcs.xml
