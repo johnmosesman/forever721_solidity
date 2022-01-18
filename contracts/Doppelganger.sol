@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
-//import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
@@ -13,28 +12,44 @@ contract Doppelganger is ERC721Enumerable, ERC721URIStorage {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
-    event Snapshot(address indexed wallet, uint256 snapshotTokenId);
+    struct Snapshot {
+        address wallet;
+        address originalTokenAddress;
+        uint256 originalTokenId;
+    }
+
+    mapping(uint256 => Snapshot) public snapshots;
+
+    event SnapshotCreated(address indexed wallet, uint256 snapshotTokenId);
 
     constructor() ERC721("Doppelganger", "DOPP") {}
 
-    function snapshot(address tokenContractAddress, uint256 tokenId)
+    function snapshot(address tokenContractAddress, uint256 originalTokenId)
         public
         returns (uint256)
     {
         IERC721 erc721 = IERC721(tokenContractAddress);
 
         // Only owner of NFT can mint snapshot
-        address ownerAddress = erc721.ownerOf(tokenId);
+        address ownerAddress = erc721.ownerOf(originalTokenId);
         require(
             msg.sender == ownerAddress,
             "Doppelganger: only owner of original token can snapshot."
         );
 
-        // If this doesn't implement tokenURI it just returns empty string
+        // If contract doesn't implement tokenURI it just returns empty string
         string memory tokenUri = ERC721URIStorage(tokenContractAddress)
-            .tokenURI(tokenId);
+            .tokenURI(originalTokenId);
         uint256 snapshotTokenId = _mintSnapshot(tokenUri);
-        emit Snapshot(msg.sender, snapshotTokenId);
+
+        Snapshot memory newSnapshot = Snapshot({
+            wallet: msg.sender,
+            originalTokenAddress: tokenContractAddress,
+            originalTokenId: originalTokenId
+        });
+        snapshots[snapshotTokenId] = newSnapshot;
+
+        emit SnapshotCreated(msg.sender, snapshotTokenId);
 
         return snapshotTokenId;
     }
@@ -49,6 +64,8 @@ contract Doppelganger is ERC721Enumerable, ERC721URIStorage {
 
         return newItemId;
     }
+
+    // Overrides
 
     function tokenURI(uint256 tokenId)
         public
