@@ -6,52 +6,78 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+
 //import "utils/base64.sol";
 
 contract Doppelganger is ERC721Enumerable, ERC721URIStorage {
-  using Counters for Counters.Counter;
-  Counters.Counter private _tokenIds;
+    using Counters for Counters.Counter;
+    Counters.Counter private _tokenIds;
 
-  constructor() ERC721("Doppelganger", "DOPP") {}
+    constructor() ERC721("Doppelganger", "DOPP") {}
 
-  function snapshot(address tokenContractAddress, uint256 tokenId) public returns(uint256) {
-    // Only owner of NFT can mint snapshot
-    address ownerAddress = IERC721(tokenContractAddress).ownerOf(tokenId);
-    require (msg.sender == ownerAddress, "Doppelganger: only owner of original token can snapshot.");
+    function snapshot(address tokenContractAddress, uint256 tokenId)
+        public
+        returns (uint256)
+    {
+        IERC721 erc721 = IERC721(tokenContractAddress);
 
-    // TODO: Get the real data here
-    string memory tokenUri = "blah";
-    _mintSnapshot(tokenUri);
-  }
+        // Only owner of NFT can mint snapshot
+        address ownerAddress = erc721.ownerOf(tokenId);
+        require(
+            msg.sender == ownerAddress,
+            "Doppelganger: only owner of original token can snapshot."
+        );
 
-  function _mintSnapshot(string memory aTokenURI) private returns(uint256) {
-    _tokenIds.increment();
+        // If this doesn't implement tokenURI it just returns empty string
+        string memory tokenUri = ERC721URIStorage(tokenContractAddress)
+            .tokenURI(tokenId);
+        return _mintSnapshot(tokenUri);
+    }
 
-    uint256 newItemId = _tokenIds.current();
+    function _mintSnapshot(string memory aTokenURI) private returns (uint256) {
+        _tokenIds.increment();
 
-    _mint(msg.sender, newItemId);
-    _setTokenURI(newItemId, aTokenURI);
+        uint256 newItemId = _tokenIds.current();
 
-    return newItemId;
-  }
+        _mint(msg.sender, newItemId);
+        _setTokenURI(newItemId, aTokenURI);
 
-  function tokenURI(uint256 tokenId) public view virtual override(ERC721, ERC721URIStorage) returns (string memory) {
-    return super.tokenURI(tokenId);
-  }
+        return newItemId;
+    }
 
-  function _beforeTokenTransfer(
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        virtual
+        override(ERC721, ERC721URIStorage)
+        returns (string memory)
+    {
+        return super.tokenURI(tokenId);
+    }
+
+    function _beforeTokenTransfer(
         address from,
         address to,
         uint256 tokenId
-  ) internal virtual override(ERC721, ERC721Enumerable) {
-    super._beforeTokenTransfer(from, to, tokenId);
-  }
+    ) internal virtual override(ERC721, ERC721Enumerable) {
+        super._beforeTokenTransfer(from, to, tokenId);
+    }
 
-  function _burn(uint256 tokenId) internal virtual override(ERC721, ERC721URIStorage) {
-    super._burn(tokenId);
-  }
+    function _burn(uint256 tokenId)
+        internal
+        virtual
+        override(ERC721, ERC721URIStorage)
+    {
+        super._burn(tokenId);
+    }
 
-  function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC721Enumerable) returns (bool) {
-    return super.supportsInterface(interfaceId);
-  }
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ERC721, ERC721Enumerable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
 }

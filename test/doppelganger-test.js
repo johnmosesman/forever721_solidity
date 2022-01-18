@@ -36,6 +36,7 @@ describe("Doppelganger", function () {
     // prime mock - owner addr of this token
     const tokenId = 1;
     myFake.ownerOf.returns(nftOwner.address);
+    myFake.tokenURI.returns("http://gm.com");
 
     // Minting the snapshot should work if you are the owner
     const snapshotTxn = await doppelgangerContract.connect(nftOwner).snapshot(myFake.address, tokenId);
@@ -47,6 +48,26 @@ describe("Doppelganger", function () {
     const realizedTokenId = await doppelgangerContract.tokenOfOwnerByIndex(nftOwner.address, tokensCount - 1);
     expect(realizedTokenId).to.equal(tokenId);
     const tokenUri = await doppelgangerContract.tokenURI(realizedTokenId);
-    expect(tokenUri).to.equal("blah");
+    expect(tokenUri).to.equal("http://gm.com");
+  });
+
+  it("it mints with empty tokenURI if the contract doesn't implement tokenURI", async function () {
+    [nftOwner] = await ethers.getSigners();
+
+    // prime mock - owner addr of this token
+    const tokenId = 1;
+    myFake.ownerOf.returns(nftOwner.address);
+
+    // Minting the snapshot should work if you are the owner
+    const snapshotTxn = await doppelgangerContract.connect(nftOwner).snapshot(myFake.address, tokenId);
+    snapshotTxn.wait();
+
+    tokensCount = await doppelgangerContract.balanceOf(nftOwner.address)
+    expect(tokensCount).to.equal(1);
+
+    const realizedTokenId = await doppelgangerContract.tokenOfOwnerByIndex(nftOwner.address, tokensCount - 1);
+    expect(realizedTokenId).to.equal(tokenId);
+    const tokenUri = await doppelgangerContract.tokenURI(realizedTokenId);
+    expect(tokenUri).to.equal('');
   });
 });
