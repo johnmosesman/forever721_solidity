@@ -13,6 +13,8 @@ contract Doppelganger is ERC721Enumerable, ERC721URIStorage {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
+    event Snapshot(address indexed wallet, uint256 snapshotTokenId);
+
     constructor() ERC721("Doppelganger", "DOPP") {}
 
     function snapshot(address tokenContractAddress, uint256 tokenId)
@@ -31,7 +33,10 @@ contract Doppelganger is ERC721Enumerable, ERC721URIStorage {
         // If this doesn't implement tokenURI it just returns empty string
         string memory tokenUri = ERC721URIStorage(tokenContractAddress)
             .tokenURI(tokenId);
-        return _mintSnapshot(tokenUri);
+        uint256 snapshotTokenId = _mintSnapshot(tokenUri);
+        emit Snapshot(msg.sender, snapshotTokenId);
+
+        return snapshotTokenId;
     }
 
     function _mintSnapshot(string memory aTokenURI) private returns (uint256) {

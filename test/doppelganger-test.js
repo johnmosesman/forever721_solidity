@@ -39,8 +39,12 @@ describe("Doppelganger", function () {
     myFake.tokenURI.returns("http://gm.com");
 
     // Minting the snapshot should work if you are the owner
-    const snapshotTxn = await doppelgangerContract.connect(nftOwner).snapshot(myFake.address, tokenId);
-    snapshotTxn.wait();
+    await expect(
+      doppelgangerContract.connect(nftOwner).snapshot(myFake.address, tokenId)
+    )
+      .to.emit(doppelgangerContract, "Snapshot")
+      .withArgs(nftOwner.address, tokenId);
+
 
     tokensCount = await doppelgangerContract.balanceOf(nftOwner.address)
     expect(tokensCount).to.equal(1);
