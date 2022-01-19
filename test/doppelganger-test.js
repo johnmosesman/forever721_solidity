@@ -10,9 +10,9 @@ describe("Doppelganger", function () {
   const tokenId = 1;
 
   beforeEach(async function () {
+
     // Original NFT contract (mocked)
-    const myErc721Factory = await ethers.getContractFactory("ERC721");
-    myFake = await smock.fake(myErc721Factory);
+    myFake = await smock.fake("ERC721");
 
     // Deploy the snapshot contract
     const Doppelganger = await ethers.getContractFactory("Doppelganger");
@@ -22,7 +22,7 @@ describe("Doppelganger", function () {
     [nftOwner, notNftOwner] = await ethers.getSigners();
 
     // Mock the owner of the original NFT
-    myFake.ownerOf.returns(nftOwner.address);
+    myFake.ownerOf.whenCalledWith(tokenId).returns(nftOwner.address);
   });
 
   it("cannot mint the snapshot if you are not the owner", async function () {
