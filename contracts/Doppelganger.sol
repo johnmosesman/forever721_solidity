@@ -20,8 +20,6 @@ contract Doppelganger is ERC721Enumerable, ERC721URIStorage {
 
     mapping(uint256 => Snapshot) public snapshots;
 
-    event SnapshotCreated(address indexed wallet, uint256 snapshotTokenId);
-
     constructor() ERC721("Doppelganger", "DOPP") {}
 
     function snapshot(address tokenContractAddress, uint256 originalTokenId)
@@ -48,8 +46,6 @@ contract Doppelganger is ERC721Enumerable, ERC721URIStorage {
             originalTokenId: originalTokenId
         });
         snapshots[snapshotTokenId] = newSnapshot;
-
-        emit SnapshotCreated(msg.sender, snapshotTokenId);
 
         return snapshotTokenId;
     }
