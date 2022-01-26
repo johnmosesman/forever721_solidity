@@ -8,6 +8,7 @@ describe("Doppelganger", function () {
   let nftOwner;
   let notNftOwner;
   const tokenId = 1;
+  const dummyIPFS = "ipfs://ipfs/QmAnIpFsHaSh";
 
   beforeEach(async function () {
 
@@ -27,47 +28,42 @@ describe("Doppelganger", function () {
 
   it("cannot mint the snapshot if you are not the owner", async function () {
     await expect(
-      doppelgangerContract.connect(notNftOwner).snapshot(myFake.address, tokenId)
+      doppelgangerContract.connect(notNftOwner).snapshot(myFake.address, tokenId, dummyIPFS)
     ).to.be.revertedWith("Doppelganger: only owner of original token can snapshot.");
   });
 
   it("can mint the snapshot if you are the owner", async function () {
     myFake.tokenURI.returns("http://gm.com");
 
-    await doppelgangerContract.connect(nftOwner).snapshot(myFake.address, tokenId)
+    await doppelgangerContract.connect(nftOwner).snapshot(myFake.address, tokenId, dummyIPFS)
 
     tokensCount = await doppelgangerContract.balanceOf(nftOwner.address)
     expect(tokensCount).to.equal(1);
 
     const realizedTokenId = await doppelgangerContract.tokenOfOwnerByIndex(nftOwner.address, tokensCount - 1);
     expect(realizedTokenId).to.equal(tokenId);
-
-    const tokenUri = await doppelgangerContract.tokenURI(realizedTokenId);
-    expect(tokenUri).to.equal("http://gm.com");
-  });
-
-  it("mints with empty tokenURI if the contract doesn't implement tokenURI", async function () {
-    const snapshotTxn = await doppelgangerContract.connect(nftOwner).snapshot(myFake.address, tokenId);
-    snapshotTxn.wait();
-
-    tokensCount = await doppelgangerContract.balanceOf(nftOwner.address)
-    expect(tokensCount).to.equal(1);
-
-    const realizedTokenId = await doppelgangerContract.tokenOfOwnerByIndex(nftOwner.address, tokensCount - 1);
-    expect(realizedTokenId).to.equal(tokenId);
-
-    const tokenUri = await doppelgangerContract.tokenURI(realizedTokenId);
-    expect(tokenUri).to.equal('');
   });
 
   it("stores a reference to the original", async function () {
-    const snapshotTxn = await doppelgangerContract.connect(nftOwner).snapshot(myFake.address, tokenId);
+    const snapshotTxn = await doppelgangerContract.connect(nftOwner).snapshot(myFake.address, tokenId, dummyIPFS);
     snapshotTxn.wait();
 
     const snapshot = await doppelgangerContract.snapshots(1);
 
-    expect(snapshot.wallet).to.equal(nftOwner.address);
+    expect(snapshot.snapshotMinter).to.equal(nftOwner.address);
     expect(snapshot.originalTokenAddress).to.equal(myFake.address);
     expect(snapshot.originalTokenId).to.equal(tokenId);
   });
+
+  it("stores the new tokenURI", async function () {
+    const snapshotTxn = await doppelgangerContract.connect(nftOwner).snapshot(myFake.address, tokenId, dummyIPFS);
+    snapshotTxn.wait();
+
+    const snapshot = await doppelgangerContract.snapshots(1);
+
+    const storedTokenUri = await doppelgangerContract.tokenURI[1];
+
+    expect(storedTokenUri === dummyIPFS, "");
+  });
+
 });
