@@ -13,7 +13,10 @@ contract Doppelganger is ERC721Enumerable, ERC721URIStorage {
     Counters.Counter private _tokenIds;
 
     struct Snapshot {
+<<<<<<< Updated upstream
         address snapshotMinter;
+=======
+>>>>>>> Stashed changes
         address originalTokenAddress;
         uint256 originalTokenId;
     }
@@ -35,9 +38,6 @@ contract Doppelganger is ERC721Enumerable, ERC721URIStorage {
             "Doppelganger: only owner of original token can snapshot."
         );
 
-        // If contract doesn't implement tokenURI it just returns empty string
-        // string memory tokenUri = ERC721URIStorage(tokenContractAddress)
-        //     .tokenURI(originalTokenId);
         uint256 snapshotTokenId = _mintSnapshot(newTokenURI);
 
         Snapshot memory newSnapshot = Snapshot({
