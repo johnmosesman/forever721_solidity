@@ -13,7 +13,10 @@ contract Doppelganger is ERC721Enumerable, ERC721URIStorage {
     Counters.Counter private _tokenIds;
 
     struct Snapshot {
+<<<<<<< Updated upstream
         address snapshotMinter;
+=======
+>>>>>>> Stashed changes
         address originalTokenAddress;
         uint256 originalTokenId;
     }

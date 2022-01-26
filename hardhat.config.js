@@ -24,15 +24,15 @@ module.exports = {
   networks: {
     hardhat: {
     },
-  //   rinkeby: {
-  //     url: process.env.RINKEBY_INFURA_URL,
-  //     accounts: [process.env.PRIVATE_KEY]
-  //   }
-  // },
-  // etherscan: {
-  //   apiKey: {
-  //     rinkeby: process.env.ETHERSCAN_API_KEY
-  //   }
+    rinkeby: {
+      url: process.env.RINKEBY_INFURA_URL,
+      accounts: [process.env.PRIVATE_KEY]
+    }
+  },
+  etherscan: {
+    apiKey: {
+      rinkeby: process.env.ETHERSCAN_API_KEY
+    }
   },
   solidity: "0.8.4",
 };
