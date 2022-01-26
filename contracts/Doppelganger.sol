@@ -22,7 +22,7 @@ contract Doppelganger is ERC721Enumerable, ERC721URIStorage {
 
     constructor() ERC721("Doppelganger", "DOPP") {}
 
-    function snapshot(address tokenContractAddress, uint256 originalTokenId, string newTokenURI)
+    function snapshot(address tokenContractAddress, uint256 originalTokenId, string calldata newTokenURI)
         public
         returns (uint256)
     {
@@ -35,9 +35,6 @@ contract Doppelganger is ERC721Enumerable, ERC721URIStorage {
             "Doppelganger: only owner of original token can snapshot."
         );
 
-        // If contract doesn't implement tokenURI it just returns empty string
-        // string memory tokenUri = ERC721URIStorage(tokenContractAddress)
-        //     .tokenURI(originalTokenId);
         uint256 snapshotTokenId = _mintSnapshot(newTokenURI);
 
         Snapshot memory newSnapshot = Snapshot({
