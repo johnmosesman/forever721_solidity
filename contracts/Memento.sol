@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 
 //import "utils/base64.sol";
 
-contract Doppelganger is ERC721Enumerable, ERC721URIStorage {
+contract Memento is ERC721Enumerable, ERC721URIStorage {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
@@ -20,7 +20,7 @@ contract Doppelganger is ERC721Enumerable, ERC721URIStorage {
 
     mapping(uint256 => Snapshot) public snapshots;
 
-    constructor() ERC721("Doppelganger", "DOPP") {}
+    constructor() ERC721("Memento", "MNTO") {}
 
     function snapshot(address tokenContractAddress, uint256 originalTokenId, string calldata newTokenURI)
         public
@@ -32,7 +32,7 @@ contract Doppelganger is ERC721Enumerable, ERC721URIStorage {
         address ownerAddress = erc721.ownerOf(originalTokenId);
         require(
             msg.sender == ownerAddress,
-            "Doppelganger: only owner of original token can snapshot."
+            "Memento: only owner of original token can snapshot."
         );
 
         uint256 snapshotTokenId = _mintSnapshot(newTokenURI);
