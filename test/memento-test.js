@@ -2,9 +2,9 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { smock } = require('@defi-wonderland/smock');
 
-describe("Doppelganger", function () {
+describe("Memento", function () {
   let myFake;
-  let doppelgangerContract;
+  let mementoContract;
   let nftOwner;
   let notNftOwner;
   const tokenId = 1;
@@ -16,9 +16,9 @@ describe("Doppelganger", function () {
     myFake = await smock.fake("ERC721");
 
     // Deploy the snapshot contract
-    const Doppelganger = await ethers.getContractFactory("Doppelganger");
-    doppelgangerContract = await Doppelganger.deploy();
-    await doppelgangerContract.deployed();
+    const Memento = await ethers.getContractFactory("Memento");
+    mementoContract = await Memento.deploy();
+    await mementoContract.deployed();
 
     [nftOwner, notNftOwner] = await ethers.getSigners();
 
@@ -28,27 +28,27 @@ describe("Doppelganger", function () {
 
   it("cannot mint the snapshot if you are not the owner", async function () {
     await expect(
-      doppelgangerContract.connect(notNftOwner).snapshot(myFake.address, tokenId, dummyIPFS)
-    ).to.be.revertedWith("Doppelganger: only owner of original token can snapshot.");
+      mementoContract.connect(notNftOwner).snapshot(myFake.address, tokenId, dummyIPFS)
+    ).to.be.revertedWith("Memento: only owner of original token can snapshot.");
   });
 
   it("can mint the snapshot if you are the owner", async function () {
     myFake.tokenURI.returns("http://gm.com");
 
-    await doppelgangerContract.connect(nftOwner).snapshot(myFake.address, tokenId, dummyIPFS)
+    await mementoContract.connect(nftOwner).snapshot(myFake.address, tokenId, dummyIPFS)
 
-    tokensCount = await doppelgangerContract.balanceOf(nftOwner.address)
+    tokensCount = await mementoContract.balanceOf(nftOwner.address)
     expect(tokensCount).to.equal(1);
 
-    const realizedTokenId = await doppelgangerContract.tokenOfOwnerByIndex(nftOwner.address, tokensCount - 1);
+    const realizedTokenId = await mementoContract.tokenOfOwnerByIndex(nftOwner.address, tokensCount - 1);
     expect(realizedTokenId).to.equal(tokenId);
   });
 
   it("stores a reference to the original", async function () {
-    const snapshotTxn = await doppelgangerContract.connect(nftOwner).snapshot(myFake.address, tokenId, dummyIPFS);
+    const snapshotTxn = await mementoContract.connect(nftOwner).snapshot(myFake.address, tokenId, dummyIPFS);
     snapshotTxn.wait();
 
-    const snapshot = await doppelgangerContract.snapshots(1);
+    const snapshot = await mementoContract.snapshots(1);
 
     expect(snapshot.snapshotMinter).to.equal(nftOwner.address);
     expect(snapshot.originalTokenAddress).to.equal(myFake.address);
@@ -56,12 +56,12 @@ describe("Doppelganger", function () {
   });
 
   it("stores the new tokenURI", async function () {
-    const snapshotTxn = await doppelgangerContract.connect(nftOwner).snapshot(myFake.address, tokenId, dummyIPFS);
+    const snapshotTxn = await mementoContract.connect(nftOwner).snapshot(myFake.address, tokenId, dummyIPFS);
     snapshotTxn.wait();
 
-    const snapshot = await doppelgangerContract.snapshots(1);
+    const snapshot = await mementoContract.snapshots(1);
 
-    const storedTokenUri = await doppelgangerContract.tokenURI[1];
+    const storedTokenUri = await mementoContract.tokenURI[1];
 
     expect(storedTokenUri === dummyIPFS, "");
   });
